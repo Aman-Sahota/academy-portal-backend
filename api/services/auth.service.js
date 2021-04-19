@@ -3,6 +3,7 @@ const User = require('../../models/user.model')
 class AuthService {
     async findUserByEmail(email) {
         try {
+            console.log(222, email)
             const user = await User.findOne({
                 where: {
                     email
@@ -11,8 +12,7 @@ class AuthService {
 
             return user
         } catch (error) {
-            console.log("error", error)
-            throw new Error({ code: 500, message: "Internal Server error" })
+            throw new Error(JSON.stringify({ code: 500, message: `Internal Server error-${error.message}` }))
         }
     }
 
@@ -22,8 +22,7 @@ class AuthService {
 
             return user
         } catch (error) {
-            console.log("error", error)
-            throw new Error({ code: 500, message: "Internal Server error" })
+            throw new Error(JSON.stringify({ code: 500, message: `Internal Server error-${error.message}` }))
         }
     }
 }

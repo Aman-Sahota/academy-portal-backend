@@ -1,6 +1,5 @@
 const DataTypes = require('sequelize')
 const sequelize = require('../config/db')
-const Player = require('./player.model')
 
 const User = sequelize.define('user', {
     id: {
@@ -26,7 +25,5 @@ const User = sequelize.define('user', {
     tablename: 'user',
     underscored: true,
 })
-
-User.hasMany(Player, { foreignKey: 'registered_by' })
 
 module.exports = User

@@ -8,30 +8,32 @@ class AuthController {
             let requestBody = Object.assign({}, req.body);
 
             const validationResult = await validator.validate(requestBody, {
-                first_name: { presence: { allowEmpty: false } },
+                name: { presence: { allowEmpty: false } },
                 email: { presence: { allowEmpty: false }, email: true },
                 password: { presence: { allowEmpty: false }, length: { minimum: 6 } },
             })
 
             if (validationResult) {
-                throw new Error({ code: 400, message: `Validation Error - ${validationResult}` })
+                throw new Error(JSON.stringify({ code: 400, message: 'Validation Error', data: validationResult }))
             }
 
             const findUser = await AuthService.findUserByEmail(requestBody.email)
             if (findUser) {
-                throw new Error({ code: 400, message: 'Email already exists' })
+                throw new Error(JSON.stringify({ code: 400, message: 'Email already exists' }))
             }
 
             requestBody.password = await encryptPassword(requestBody.password);
 
             const createdUser = await AuthService.createUser(requestBody)
 
-            res.status(200).json({ success: true, data: { user: createdUser, token: await generateToken(createdUser) } })
+            res.status(200).json({ success: true, data: { user: createdUser, token: await generateToken(createdUser.dataValues) } })
 
-        } catch ({ message, code }) {
-            res.status(code).json({
+        } catch (error) {
+            error = JSON.parse(error.message)
+            res.status(error.code).json({
                 success: false,
-                error: message
+                message: error.message,
+                data: error.data
             })
         }
     }
@@ -46,24 +48,26 @@ class AuthController {
             })
 
             if (validationResult) {
-                throw new Error({ code: 400, message: `Validation Error - ${validationResult}` })
+                throw new Error(JSON.stringify({ code: 400, message: 'Validation Error', data: validationResult }))
             }
 
             const findUser = await AuthService.findUserByEmail(requestBody.email)
             if (!findUser) {
-                throw new Error({ code: 400, message: 'User not found' })
+                throw new Error(JSON.stringify({ code: 400, message: 'Email or password is incorrect' }))
+            } else {
+                const isPwdMatched = await comparePassword(requestBody.password, findUser.password)
+                if (!isPwdMatched) {
+                    throw new Error(JSON.stringify({ code: 401, message: "Email or password is incorrect" }))
+                }
             }
 
-            const isPwdMatched = await comparePassword(requestBody.password, findUser.password)
-            if (!isPwdMatched) {
-                throw new Error({ code: 401, message: "Email or password is incorrect" })
-            }
-
-            res.status(200).json({ success: true, data: { user: findUser, token: await generateToken(findUser) } })
-        } catch ({ message, code }) {
-            res.status(code).json({
+            res.status(200).json({ success: true, data: { user: findUser, token: await generateToken(findUser.dataValues) } })
+        } catch (error) {
+            error = JSON.parse(error.message)
+            res.status(error.code).json({
                 success: false,
-                error: message
+                message: error.message,
+                data: error.data
             })
         }
     }

@@ -1,7 +1,5 @@
 const DataTypes = require('sequelize')
 const sequelize = require('../config/db')
-const State = require('./state.model')
-const User = require('./user.model')
 
 const Player = sequelize.define('player', {
     id: {
@@ -65,8 +63,5 @@ const Player = sequelize.define('player', {
     updatedAt: 'updated_at',
     deletedAt: 'deleted_at'
 })
-
-Player.belongsTo(State, { foreignKey: 'state_id' })
-Player.belongsTo(User, { foreignKey: 'registered_by' })
 
 module.exports = Player

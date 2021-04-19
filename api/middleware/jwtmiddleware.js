@@ -11,8 +11,8 @@ module.exports = async function (req, res, next) {
         req._userDetails = decoded
 
         next();
-    } catch (error) {
-        return res.status(450).json({ error });
+    } catch ({ message }) {
+        return res.status(450).json({ error: message });
     }
 
 }

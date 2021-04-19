@@ -1,6 +1,5 @@
 const DataTypes = require('sequelize')
 const sequelize = require('../config/db')
-const Player = require('./player.model')
 
 const State = sequelize.define('state', {
     id: {
@@ -13,14 +12,13 @@ const State = sequelize.define('state', {
         allowNull: false,
     },
     type:{
-        type:DataTypes.ENUM('S,U'),
+        type:DataTypes.ENUM('S','U'),
         allowNull:false
     }
 }, {
     tablename: 'state',
     underscored: true,
+    timestamps: false
 })
-
-State.hasMany(Player, { foreignKey:'state_id' })
 
 module.exports = State
